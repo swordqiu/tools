@@ -39,9 +39,18 @@ var Debug = false
 // into another group after 3rd-party packages.
 var LocalPrefix string
 
+var CorpPrefix string
+
 func localPrefixes() []string {
 	if LocalPrefix != "" {
 		return strings.Split(LocalPrefix, ",")
+	}
+	return nil
+}
+
+func corpPrefixes() []string {
+	if CorpPrefix != "" {
+		return strings.Split(CorpPrefix, ",")
 	}
 	return nil
 }
@@ -51,6 +60,14 @@ func localPrefixes() []string {
 var importToGroup = []func(importPath string) (num int, ok bool){
 	func(importPath string) (num int, ok bool) {
 		for _, p := range localPrefixes() {
+			if strings.HasPrefix(importPath, p) || strings.TrimSuffix(p, "/") == importPath {
+				return 4, true
+			}
+		}
+		return
+	},
+	func(importPath string) (num int, ok bool) {
+		for _, p := range corpPrefixes() {
 			if strings.HasPrefix(importPath, p) || strings.TrimSuffix(p, "/") == importPath {
 				return 3, true
 			}
